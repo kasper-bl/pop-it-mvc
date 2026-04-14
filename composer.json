@@ -1,0 +1,25 @@
+{
+    "name": "kasper-bl/pop-it-mvc",
+    "description": "qweasd",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "kasper-bl",
+            "email": "momopoki75@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": "^7.4 | ^8.0",
+        "illuminate/database": "9.x-dev",
+        "illuminate/events": "9.x-dev"
+    },
+    "autoload": {
+       "psr-4": {
+           "Src\\": "core/Src/",
+           "": "app/"
+       }
+   }
+
+}
