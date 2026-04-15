@@ -1,8 +1,10 @@
-<h2>Регистрация нового пользователя</h2>
-<h3><?= $message ?? ''; ?></h3>
+<h2>Регистрация сотрудника</h2>
 <form method="post">
-   <label>Имя <input type="text" name="name"></label>
-   <label>Логин <input type="text" name="login"></label>
-   <label>Пароль <input type="password" name="password"></label>
-   <button>Зарегистрироваться</button>
+    <input type="text" name="login" placeholder="Логин" required>
+    <input type="password" name="password" placeholder="Пароль" required>
+    <input type="text" name="name" placeholder="Имя" required>
+    <input type="text" name="surname" placeholder="Фамилия" required>
+    <input type="text" name="patronymic" placeholder="Отчество">
+    <input type="text" name="department" placeholder="Кафедра/отдел">
+    <button>Зарегистрироваться</button>
 </form>

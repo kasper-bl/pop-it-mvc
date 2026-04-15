@@ -3,28 +3,21 @@
 namespace Controller;
 
 use Src\View;
-use Model\Post;
 use Src\Request;
-use Model\User;
-use Src\Auth\Auth;
+use Model\Staff;
 
 class Site
 {
-    public function index(Request $request): string
-    {
-        $posts = Post::all();
-        return (new View())->render('site.post', ['posts' => $posts]);
-    }
-
     public function hello(): string
     {
-        return new View('site.hello', ['message' => 'hello working']);
+        return new View('site.hello', ['message' => 'Научный отдел']);
     }
 
     public function signup(Request $request): string
     {
-        if ($request->method === 'POST' && User::create($request->all())) {
-            app()->route->redirect('/go');
+        if ($request->method === 'POST') {
+            Staff::create($request->all());
+            app()->route->redirect('/login');
         }
         return new View('site.signup');
     }
@@ -34,15 +27,15 @@ class Site
         if ($request->method === 'GET') {
             return new View('site.login');
         }
-        if (Auth::attempt($request->all())) {
+        if (app()->auth::attempt($request->all())) {
             app()->route->redirect('/hello');
         }
-        return new View('site.login', ['message' => 'Неправильные логин или пароль']);
+        return new View('site.login', ['message' => 'Ошибка входа']);
     }
 
     public function logout(): void
     {
         app()->auth::logout();
-        app()->route->redirect('/hello');
+        app()->route->redirect('/login');
     }
 }
