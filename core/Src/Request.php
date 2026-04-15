@@ -2,6 +2,8 @@
 
 namespace Src;
 
+use Error;
+
 class Request
 {
     protected array $body;
@@ -15,19 +17,19 @@ class Request
         $this->headers = getallheaders() ?? [];
     }
 
-    public function all(): array
+    public function all():array
     {
         return $this->body + $this->files();
     }
 
-    public function set($field, $value): void
+    public function get($field, $value):void
     {
         $this->body[$field] = $value;
     }
 
-    public function get($field)
+    public function set($field)
     {
-        return $this->body[$field] ?? null;
+        $this->body[$field];
     }
 
     public function files(): array
@@ -40,9 +42,6 @@ class Request
         if (array_key_exists($key, $this->body)) {
             return $this->body[$key];
         }
-        if (array_key_exists($key, $_GET)) {
-            return $_GET[$key];
-        }
-        return null; 
+        throw new Error('Accessing a non-existent property');
     }
 }

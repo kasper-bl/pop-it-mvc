@@ -6,6 +6,7 @@ use Exception;
 
 class View
 {
+
     private string $view = '';
     private array $data = [];
     private string $root = '';
@@ -20,12 +21,10 @@ class View
 
     private function getRoot(): string
     {
-        $projectRoot = dirname(__DIR__, 2);
-        
         global $app;
-        $viewsPath = $app->settings->getViewsPath();
-        
-        return rtrim($projectRoot, '/') . '/' . ltrim($viewsPath, '/');
+        $root = $app->settings->getRootPath();
+        $path = $app->settings->getViewsPath();
+        return $_SERVER['DOCUMENT_ROOT'] . $root . $path;
     }
 
     private function getPathToMain(): string
@@ -35,41 +34,28 @@ class View
 
     private function getPathToView(string $view = ''): string
     {
-        $viewPath = str_replace('.', '/', $view);
-        return rtrim($this->root, '/') . '/' . $viewPath . '.php';
+        $view = str_replace('.', '/', $view);
+        return $this->getRoot() . "/" . $view . ".php";
     }
 
     public function render(string $view = '', array $data = []): string
     {
-        $viewPath = $this->getPathToView($view !== '' ? $view : $this->view);
-        $layoutPath = $this->getPathToMain();
-        $renderData = $data !== [] ? $data : $this->data;
+        $path = $this->getPathToView($view);
 
-        if (!file_exists($layoutPath)) {
-            throw new Exception('Layout not found: ' . $layoutPath);
-        }
-        
-        if (!file_exists($viewPath)) {
-            throw new Exception('View not found: ' . $viewPath);
+        if (file_exists($this->getPathToMain()) && file_exists($path)) {
+            extract($data, EXTR_PREFIX_SAME, '');
+            ob_start();
+            require $path;
+            $content = ob_get_clean();
+            return require($this->getPathToMain());
         }
 
-        extract($renderData, EXTR_SKIP);
-
-        ob_start();
-        require $viewPath;
-        $content = ob_get_clean();
-
-        ob_start();
-        require $layoutPath;
-        return ob_get_clean();
+        throw new Exception('Error render');
     }
 
     public function __toString(): string
     {
-        try {
-            return $this->render($this->view, $this->data);
-        } catch (Exception $e) {
-            return '<!-- View render error: ' . htmlspecialchars($e->getMessage()) . ' -->';
-        }
+        return $this->render($this->view, $this->data);
     }
+
 }
