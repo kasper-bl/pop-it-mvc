@@ -1,6 +1,6 @@
 <?php
 return [
-   'root' => '',
+   'root' => '/practika',
    'routes' => 'routes',
    'views' => 'views'
 ];

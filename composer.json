@@ -13,7 +13,9 @@
     "require": {
         "php": "^7.4 | ^8.0",
         "illuminate/database": "9.x-dev",
-        "illuminate/events": "9.x-dev"
+        "illuminate/events": "9.x-dev",
+        "nikic/fast-route": "v1.x-dev",
+        "yjx/easy-router": "dev-master"
     },
     "autoload": {
        "psr-4": {

@@ -23,16 +23,16 @@ class Settings
 
     public function getRootPath(): string
     {
-        return isset($this->_settings['path']['root']) ? '/' . $this->_settings['path']['root'] : '';
+        return $this->path['root'] ?? '';
     }
 
     public function getViewsPath(): string
     {
-        return isset($this->_settings['path']['views']) ? '/' . $this->_settings['path']['views'] : '/views';
-    }
-    public function getDbSetting(): array
-    {
-    return $this->db ?? [];
+        return '/' . ($this->path['views'] ?? '');
     }
 
+    public function getDbSetting(): array
+    {
+        return $this->db ?? [];
+    }
 }
