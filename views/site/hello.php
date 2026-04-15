@@ -1,1 +1,1 @@
-<h2><?= $message ?? ''; ?></h2>
+<h2 class="main__title"><?= $message ?? ''; ?></h2>

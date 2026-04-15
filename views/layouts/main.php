@@ -1,14 +1,17 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
 <head>
    <meta charset="UTF-8">
    <meta name="viewport"
          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+   <link rel="stylesheet" href="public\assets\style\main.css">
+   <link rel="stylesheet" href="public\assets\style\login.css">
+   <link rel="stylesheet" href="public\assets\style\register.css">
    <title>Pop it MVC</title>
 </head>
 <body>
-<header>
+<header class="wrapper">
    <nav>
        <a href="<?= app()->route->getUrl('/hello') ?>">Главная</a>
        <?php
@@ -25,9 +28,12 @@
        ?>
    </nav>
 </header>
-<main>
+<main class="wrapper">
    <?= $content ?? '' ?>
 </main>
-
+<footer class="wrapper">
+    <p>&copy; 2026 Что-то с научным отделом. Все права защищены(не факт).</p>
+</footer>
 </body>
 </html>
+
