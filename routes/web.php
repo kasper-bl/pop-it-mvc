@@ -18,8 +18,8 @@ Route::add(['GET', 'POST'], '/admin/users/add', [Controller\Site::class, 'addUse
 // Диссертации
 Route::add('GET', '/dissertations', [Controller\Site::class, 'dissertations'])->middleware('auth');
 
-// Публикации
 Route::add('GET', '/publications', [Controller\Site::class, 'publications'])->middleware('auth');
+Route::add(['GET', 'POST'], '/add-publication', [Controller\Site::class, 'addPublication'])->middleware('auth');
 
 // Отчёты (только сотрудник)
 Route::add(['GET', 'POST'], '/reports', [Controller\Site::class, 'reports'])->middleware('auth');

@@ -29,13 +29,12 @@ class Middleware
         $this->middlewareCollector = new RouteCollector(new Std(), new MarkBased());
     }
 
-    // Запуск всех middlewares
     public function go(string $httpMethod, string $uri, Request $request): Request
     {
         return $this->runMiddlewares($httpMethod, $uri, $this->runAppMiddlewares($request));
     }
 
-    // Запуск всех middlewares для текущего маршрута
+
     private function runMiddlewares(string $httpMethod, string $uri, Request $request): Request
     {
         $routeMiddleware = app()->settings->app['routeMiddleware'] ?? [];
@@ -48,7 +47,6 @@ class Middleware
         return $request;
     }
 
-    // Запуск всех глобальных middlewares
     private function runAppMiddlewares(Request $request): Request
     {
         $routeMiddleware = app()->settings->app['routeAppMiddleware'] ?? [];

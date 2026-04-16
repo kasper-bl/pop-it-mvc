@@ -1,27 +1,28 @@
 <h1>Публикации</h1>
 
-<?php if ($isAdmin): ?>
-    <p style="color: green;">Режим администратора: полный доступ</p>
+<a href="<?= app()->route->getUrl('/add-publication') ?>">Добавить публикацию</a>
+
+<?php if (!empty($publications) && count($publications) > 0): ?>
+    <table border="1" cellpadding="10" style="border-collapse: collapse; width: 100%;">
+        <tr>
+            <th>Название</th>
+            <th>Издание</th>
+            <th>Дата публикации</th>
+            <th>Руководитель</th>
+            <th>Тип</th>
+            <th>Индексация</th>
+        </tr>
+        <?php foreach ($publications as $pub): ?>
+        <tr>
+            <td><?= htmlspecialchars($pub->title) ?></td>
+            <td><?= htmlspecialchars($pub->edition) ?></td>
+            <td><?= htmlspecialchars($pub->publication_date) ?></td>
+            <td><?= htmlspecialchars($pub->supervisor?->getFullName() ?? '—') ?></td>
+            <td><?= htmlspecialchars($pub->publicationType?->name ?? '—') ?></td>
+            <td><?= htmlspecialchars($pub->indexType?->name ?? '—') ?></td>
+        </tr>
+        <?php endforeach; ?>
+    </table>
 <?php else: ?>
-    <p style="color: blue;">Режим сотрудника: просмотр и добавление</p>
-<?php endif; ?>
-
-<table border="1" cellpadding="10">
-    <tr>
-        <th>Название</th>
-        <th>Издание</th>
-        <th>Дата публикации</th>
-        <th>Индекс</th>
-        <th>Автор (руководитель)</th>
-        <th>Действия</th>
-    </tr>
-    <tr>
-        <td colspan="6">Список публикаций появится после добавления функционала</td>
-    </tr>
-</table>
-
-<a href="#" class="btn">+ Добавить публикацию</a>
-
-<?php if ($isAdmin): ?>
-    <a href="#" class="btn btn-danger">🗑️ Режим массового удаления (только админ)</a>
+    <p>Публикаций пока нет.</p>
 <?php endif; ?>

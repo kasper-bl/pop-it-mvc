@@ -5,6 +5,9 @@ namespace Controller;
 use Src\View;
 use Src\Request;
 use Model\Staff;
+use Model\Edition;
+use Model\IndexType;
+use Model\Publication;
 use Src\Validator\Validator;
 
 class Site
@@ -39,12 +42,11 @@ class Site
         }
         app()->route->redirect('/login');
     }
-    
-    
+        
     public function dashboard(): string
     {
         $user = app()->auth::user();
-        $isAdmin = ($user->id_role == 1);
+        $isAdmin = ($user->role_id == 1);
         
         return new View('site.dashboard', [
             'isAdmin' => $isAdmin,
@@ -52,11 +54,10 @@ class Site
         ]);
     }
 
-    
     private function checkAdmin(): void
     {
         $user = app()->auth::user();
-        if ($user->id_role != 1) {
+        if ($user->role_id != 1) {
             app()->route->redirect('/dashboard');
         }
     }
@@ -88,7 +89,7 @@ class Site
                     'surname' => $request->surname,
                     'patronymic' => $request->patronymic ?? '',
                     'department' => $request->department ?? '',
-                    'id_role' => $request->id_role ?? 2
+                    'role_id' => $request->role_id ?? 2
                 ];
                 
                 if (Staff::create($userData)) {
@@ -104,35 +105,22 @@ class Site
             'roles' => [1 => 'Администратор', 2 => 'Сотрудник научного отдела']
         ]);
     }
-    
-    
+     
     public function dissertations(): string
     {
         $user = app()->auth::user();
-        $isAdmin = ($user->id_role == 1);
+        $isAdmin = ($user->role_id == 1);
         
         return new View('site.dissertations', [
             'isAdmin' => $isAdmin
         ]);
     }
     
-    
-    public function publications(): string
-    {
-        $user = app()->auth::user();
-        $isAdmin = ($user->id_role == 1);
-        
-        return new View('site.publications', [
-            'isAdmin' => $isAdmin
-        ]);
-    }
-    
-    
     public function reports(): string
     {
         $user = app()->auth::user();
         
-        if ($user->id_role == 1) {
+        if ($user->role_id == 1) {
             app()->route->redirect('/dashboard');
         }
         
@@ -145,10 +133,72 @@ class Site
         $user = app()->auth::user();
         
         // Только для сотрудников
-        if ($user->id_role == 1) {
+        if ($user->role_id == 1) {
             app()->route->redirect('/dashboard');
         }
         
         return new View('site.search');
+    }
+
+    // ========== ПУБЛИКАЦИИ ==========
+
+    public function addPublication(Request $request): string
+    {
+        $message = '';
+        
+        // Получаем списки для выпадающих меню
+        $staff = Staff::all();  // сотрудники = научные руководители
+        $editions = Edition::all();
+        $indexTypes = IndexType::all();
+        
+        if ($request->method === 'POST') {
+            $validator = new Validator($request->all(), [
+                'title' => ['required'],
+                'publication_date' => ['required'],
+                'staff_id' => ['required'],
+                'edition_id' => ['required'],
+                'index_type_id' => ['required']
+            ], [
+                'required' => 'Поле :field пусто'
+            ]);
+            
+            if ($validator->fails()) {
+                $message = 'Ошибки валидации: ' . json_encode($validator->errors(), JSON_UNESCAPED_UNICODE);
+            } else {
+                $publicationData = [
+                    'title' => $request->title,
+                    'publication_date' => $request->publication_date,
+                    'staff_id' => $request->staff_id,
+                    'edition_id' => $request->edition_id,
+                    'index_type_id' => $request->index_type_id
+                ];
+                
+                if (Publication::create($publicationData)) {
+                    $message = 'Публикация успешно добавлена!';
+                } else {
+                    $message = 'Ошибка при добавлении публикации';
+                }
+            }
+        }
+        
+        return new View('site.add_publication', [
+            'message' => $message,
+            'staff' => $staff,
+            'editions' => $editions,
+            'indexTypes' => $indexTypes
+        ]);
+    }
+
+    public function publications(): string
+    {
+        $user = app()->auth::user();
+        $isAdmin = ($user->role_id == 1);
+        
+        $publications = Publication::with(['staff', 'edition', 'indexType'])->get();
+        
+        return new View('site.publications', [
+            'isAdmin' => $isAdmin,
+            'publications' => $publications
+        ]);
     }
 }
