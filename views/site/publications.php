@@ -1,9 +1,9 @@
 <h1>Публикации</h1>
 
 <?php if ($isAdmin): ?>
-    <p style="color: green;">✅ Режим администратора: полный доступ</p>
+    <p style="color: green;">Режим администратора: полный доступ</p>
 <?php else: ?>
-    <p style="color: blue;">🔵 Режим сотрудника: просмотр и добавление</p>
+    <p style="color: blue;">Режим сотрудника: просмотр и добавление</p>
 <?php endif; ?>
 
 <table border="1" cellpadding="10">

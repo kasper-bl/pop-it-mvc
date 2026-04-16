@@ -9,7 +9,7 @@
         
     </head>
     <body>
-        <header>
+        <header class="wrapper">
             <nav>
                 <a href="<?= app()->route->getUrl('/') ?>">Главная</a>
 
@@ -24,6 +24,7 @@
                         <a href="<?= app()->route->getUrl('/dashboard') ?>">Панель администратора</a>
                         <a href="<?= app()->route->getUrl('/dissertations') ?>">Управление диссертациями</a>
                         <a href="<?= app()->route->getUrl('/publications') ?>">Управление публикациями</a>
+                        <a href="<?= app()->route->getUrl('/admin/users/add') ?>">Добавить сотрудника</a>
                     <?php else: ?>
                         <!-- Меню сотрудника научного отдела -->
                         <a href="<?= app()->route->getUrl('/dashboard') ?>">Панель сотрудника</a>
@@ -36,11 +37,10 @@
                     <a href="<?= app()->route->getUrl('/logout') ?>">Выход (<?= $user->name ?>)</a>
                     <?php else: ?>
                         <a href="<?= app()->route->getUrl('/login') ?>">Вход</a>
-                        <a href="<?= app()->route->getUrl('/signup') ?>">Регистрация</a>
                     <?php endif; ?>
             </nav>
         </header>
-        <main>
+        <main class="wrapper">
             <?= $content ?? '' ?>
         </main>
     </body>
