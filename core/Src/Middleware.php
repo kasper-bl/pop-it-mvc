@@ -29,20 +29,39 @@ class Middleware
         $this->middlewareCollector = new RouteCollector(new Std(), new MarkBased());
     }
 
-    public function runMiddlewares(string $httpMethod, string $uri): Request
+    // Запуск всех middlewares
+    public function go(string $httpMethod, string $uri, Request $request): Request
     {
-        $request = new Request();
+        return $this->runMiddlewares($httpMethod, $uri, $this->runAppMiddlewares($request));
+    }
 
-        $routeMiddleware = app()->settings->app['routeMiddleware'];
-
+    // Запуск всех middlewares для текущего маршрута
+    private function runMiddlewares(string $httpMethod, string $uri, Request $request): Request
+    {
+        $routeMiddleware = app()->settings->app['routeMiddleware'] ?? [];
+        
         foreach ($this->getMiddlewaresForRoute($httpMethod, $uri) as $middleware) {
             $args = explode(':', $middleware);
-            (new $routeMiddleware[$args[0]])->handle($request, $args[1] ?? null);
+            $request = (new $routeMiddleware[$args[0]])->handle($request, $args[1] ?? null) ?? $request;
         }
-
+        
         return $request;
     }
 
+    // Запуск всех глобальных middlewares
+    private function runAppMiddlewares(Request $request): Request
+    {
+        $routeMiddleware = app()->settings->app['routeAppMiddleware'] ?? [];
+        
+        foreach ($routeMiddleware as $name => $class) {
+            $args = explode(':', $name);
+            $request = (new $class)->handle($request, $args[1] ?? null) ?? $request;
+        }
+        
+        return $request;
+    }
+
+    // Поиск middlewares по адресу
     private function getMiddlewaresForRoute(string $httpMethod, string $uri): array
     {
         $dispatcherMiddleware = new Dispatcher($this->middlewareCollector->getData());

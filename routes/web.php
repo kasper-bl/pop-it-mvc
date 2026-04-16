@@ -2,15 +2,27 @@
 
 use Src\Route;
 
+// Аутентификация
 Route::add('GET', '/hello', [Controller\Site::class, 'hello'])->middleware('auth');
 Route::add(['GET', 'POST'], '/login', [Controller\Site::class, 'login']);
 Route::add('GET', '/logout', [Controller\Site::class, 'logout']);
 
-Route::add('GET', '/', [Controller\HomeController::class, 'index']);
+// Главная
+Route::add('GET', '/', [Controller\Site::class, 'home']);
 
-Route::add('GET', '/dashboard', [Controller\DashboardController::class, 'index'])->middleware('auth');
-Route::add('GET', '/dissertations', [Controller\DissertationController::class, 'index'])->middleware('auth');
-Route::add('GET', '/publications', [Controller\PublicationController::class, 'index'])->middleware('auth');
-Route::add(['GET', 'POST'], '/reports', [Controller\ReportController::class, 'index'])->middleware('auth');
-Route::add(['GET', 'POST'], '/search', [Controller\SearchController::class, 'index'])->middleware('auth');
-Route::add(['GET', 'POST'], '/admin/users/add', [Controller\AdminController::class, 'addUser'])->middleware('auth');
+// Дашборд
+Route::add('GET', '/dashboard', [Controller\Site::class, 'dashboard'])->middleware('auth');
+
+Route::add(['GET', 'POST'], '/admin/users/add', [Controller\Site::class, 'addUser'])->middleware('auth');
+
+// Диссертации
+Route::add('GET', '/dissertations', [Controller\Site::class, 'dissertations'])->middleware('auth');
+
+// Публикации
+Route::add('GET', '/publications', [Controller\Site::class, 'publications'])->middleware('auth');
+
+// Отчёты (только сотрудник)
+Route::add(['GET', 'POST'], '/reports', [Controller\Site::class, 'reports'])->middleware('auth');
+
+// Поиск (только сотрудник)
+Route::add(['GET', 'POST'], '/search', [Controller\Site::class, 'search'])->middleware('auth');
