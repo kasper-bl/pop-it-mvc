@@ -35,7 +35,7 @@
     padding: 12px 16px;
     border: 1px solid transparent;
     border-radius: 8px;
-    background-color: #ffffff;
+    background-color: var(--bd-fon);
     transition: all 0.3s ease;
     outline: none;
 }
@@ -78,7 +78,5 @@
 
 .form-hint {
     display: block;
-    font-size: 12px;
-    color: #666;
     margin-top: 5px;
 }

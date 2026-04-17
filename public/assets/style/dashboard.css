@@ -21,14 +21,14 @@
 
 .dashboard__staff-content .staff-table {
     width: 100%;
-    background-color: #fff;
+    background-color: var(--bd-fon);
     border-collapse: collapse;
     border-color: #000;
 }
 
 .dashboard__staff-content .staff-table th {
     background-color: var(--green);
-    color: white;
+    color: #fff;
     padding: 12px 15px;
     text-align: left;
     font-weight: 600;
@@ -52,10 +52,8 @@
     color: #fff;
     padding: 5px 20px;
     background-color: var(--btn-delete);
-    border-radius: 10px;
-    text-decoration: none;
+    border-radius: 8px;
     transition: all 0.5s ease;
-    display: inline-block;
 }
 
 .dashboard__staff-content .staff-table .btn-delete-user:hover {
@@ -66,25 +64,17 @@
     text-align: center;
 }
 
-.dashboard__title {
-    margin-bottom: 10px;
-}
-
-.dashboard__title h1 {
-    margin: 0 0 10px 0;
-}
-
 .dashboard__staff {
     display: flex;
     flex-direction: column;
     gap: 30px;
     border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    padding: 0;
+    box-shadow: 0 1px 3px #0000001a;
+
 }
 
 .dashboard__staff-title {
-    background: white;
+    background-color: var(--bd-fon);
     border-radius: 8px;
     padding: 15px 20px;
     display: flex;
@@ -93,14 +83,8 @@
 }
 
 .dashboard__staff-content {
-    background: white;
+    background-color: var(--bd-fon);
     border-radius: 8px;
     padding: 20px;
 }
 
-.disabled-action {
-    padding: 5px 10px;
-    background-color: #6c757d;
-    color: white;
-    border-radius: 4px;
-}

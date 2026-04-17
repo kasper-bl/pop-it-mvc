@@ -2,8 +2,15 @@
     --green: #0e9243;
     --green-hover: #28BE46;
     --bg-main: #e8ebe9;
+    --bd-fon: #fff;
     --btn-delete: #dc3545;
     --btn-delete-hover: #c82333;
     --text-color: #000;
+    --btn-dissertation: #17a2b8;
+    --btn-dissertation-hover: #138496;
+    --btn-dissertation-add: #28a745;
+    --btn-dissertation-add-hover:#218838;
+    --btn-edit: #ffc107;
+    --btn-edit-hover: #e0a800;
 }
 

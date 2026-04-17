@@ -44,7 +44,7 @@
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 16px;
-    background-color: white;
+    background-color: var(--bd-fon);
 }
 
 .filter-form__actions {
@@ -63,7 +63,7 @@
 
 .btn-filter {
     background-color: var(--green);
-    color: white;
+    color: #fff;
 }
 
 .btn-filter:hover {
@@ -72,7 +72,7 @@
 
 .btn-reset {
     background-color: #6c757d;
-    color: white;
+    color: #fff;
 }
 
 .btn-reset:hover {
@@ -83,12 +83,12 @@
 .postgraduates-table {
     width: 100%;
     border-collapse: collapse;
-    background-color: white;
+    background-color: var(--bd-fon);
 }
 
 .postgraduates-table thead th {
     background-color: var(--green);
-    color: white;
+    color: #fff;
     padding: 12px 15px;
     text-align: left;
     font-weight: 600;
@@ -117,26 +117,25 @@
 }
 
 .btn-dissertation {
-    background-color: #17a2b8;
-    color: white;
+    background-color: var(--btn-dissertation);
+    color: #ffffff;
 }
 
 .btn-dissertation:hover {
-    background-color: #138496;
+    background-color: var(--btn-dissertation-hover);
 }
 
 .btn-dissertation-add {
-    background-color: #28a745;
-    color: white;
+    background-color: var(--btn-dissertation-add);
+    color: #ffffff;
 }
 
 .btn-dissertation-add:hover {
-    background-color: #218838;
+    background-color: var(--btn-dissertation-add-hover);
 }
 
 .actions-cell {
     text-align: center;
-    white-space: nowrap;
 }
 
 .btn-edit, 
@@ -149,12 +148,12 @@
 }
 
 .btn-edit {
-    background-color: #ffc107;
+    background-color: var(--btn-edit);
     color: #212529;
 }
 
 .btn-edit:hover {
-    background-color: #e0a800;
+    background-color:var(--btn-edit-hover);
 }
 
 .btn-delete {
