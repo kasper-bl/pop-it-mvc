@@ -198,7 +198,86 @@ class Site
         
         return new View('site.publications', [
             'isAdmin' => $isAdmin,
+            'user' => $user,
             'publications' => $publications
         ]);
+    }
+
+    public function editPublication($id, Request $request): string
+    {
+        $user = app()->auth::user();
+        $publication = Publication::find($id);
+        
+        // Проверка: существует ли публикация
+        if (!$publication) {
+            app()->route->redirect('/publications');
+        }
+        
+        // Проверка прав: админ может всё, сотрудник только свои
+        if ($user->role_id != 1 && $publication->staff_id != $user->supervisor_id) {
+            app()->route->redirect('/publications');
+        }
+        
+        $message = '';
+        $staff = Staff::all();
+        $editions = Edition::all();
+        $indexTypes = IndexType::all();
+        
+        if ($request->method === 'POST') {
+            $validator = new Validator($request->all(), [
+                'title' => ['required'],
+                'publication_date' => ['required'],
+                'staff_id' => ['required'],
+                'edition_id' => ['required'],
+                'index_type_id' => ['required']
+            ], [
+                'required' => 'Поле :field пусто'
+            ]);
+            
+            if ($validator->fails()) {
+                $message = 'Ошибки валидации: ' . json_encode($validator->errors(), JSON_UNESCAPED_UNICODE);
+            } else {
+                $publication->title = $request->title;
+                $publication->publication_date = $request->publication_date;
+                $publication->staff_id = $request->staff_id;
+                $publication->edition_id = $request->edition_id;
+                $publication->index_type_id = $request->index_type_id;
+                
+                if ($publication->save()) {
+                    $message = 'Публикация успешно обновлена!';
+                } else {
+                    $message = 'Ошибка при обновлении публикации';
+                }
+            }
+        }
+        
+        return new View('site.edit_publication', [
+            'message' => $message,
+            'publication' => $publication,
+            'staff' => $staff,
+            'editions' => $editions,
+            'indexTypes' => $indexTypes
+        ]);
+    }
+
+    // ========== УДАЛЕНИЕ ПУБЛИКАЦИИ ==========
+
+    public function deletePublication($id): void
+    {
+        $user = app()->auth::user();
+        $publication = Publication::find($id);
+        
+        // Проверка: существует ли публикация
+        if (!$publication) {
+            app()->route->redirect('/publications');
+        }
+        
+        // Проверка прав: админ может всё, сотрудник только свои
+        if ($user->role_id != 1 && $publication->staff_id != $user->supervisor_id) {
+            app()->route->redirect('/publications');
+        }
+        
+        $publication->delete();
+        app()->route->redirect('/publications');
     }
 }
