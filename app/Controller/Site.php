@@ -9,6 +9,9 @@ use Model\Edition;
 use Model\IndexType;
 use Model\Publication;
 use Src\Validator\Validator;
+use Model\Postgraduate;
+use Model\Dissertation;
+use Model\DissertationStatus;
 
 class Site
 {
@@ -106,25 +109,104 @@ class Site
         ]);
     }
      
-    public function dissertations(): string
+    public function deleteUser($id): void
     {
-        $user = app()->auth::user();
-        $isAdmin = ($user->role_id == 1);
+        $this->checkAdmin();
         
-        return new View('site.dissertations', [
-            'isAdmin' => $isAdmin
-        ]);
-    }
-    
-    public function reports(): string
-    {
-        $user = app()->auth::user();
+        $user = Staff::find($id);
         
-        if ($user->role_id == 1) {
+        if (!$user) {
             app()->route->redirect('/dashboard');
         }
         
-        return new View('site.reports');
+        if ($user->supervisor_id == app()->auth::user()->supervisor_id) {
+            app()->route->redirect('/dashboard');
+        }
+        
+        $user->delete();
+        
+        app()->route->redirect('/dashboard');
+    }
+
+     public function reports(Request $request): string
+    {
+        $user = app()->auth::user();
+        
+        $message = '';
+        $reportData = [];
+        $totalDefenses = 0;
+        $dateFrom = '';
+        $dateTo = '';
+        
+        if ($request->method === 'POST') {
+            $dateFrom = $request->date_from;
+            $dateTo = $request->date_to;
+            
+            $validator = new Validator($request->all(), [
+                'date_from' => ['required'],
+                'date_to' => ['required'],
+            ], [
+                'required' => 'Поле :field пусто'
+            ]);
+            
+            if ($validator->fails()) {
+                $message = 'Ошибки валидации: ' . json_encode($validator->errors(), JSON_UNESCAPED_UNICODE);
+            } else {
+                // Получаем защищённые диссертации за период
+                $dissertations = Dissertation::with(['postgraduate', 'status'])
+                    ->whereHas('status', function($query) {
+                        $query->where('name', 'защищена');
+                    })
+                    ->whereBetween('approval_date', [$dateFrom, $dateTo])
+                    ->get();
+                
+                $totalDefenses = $dissertations->count();
+                
+                // Группировка по научным руководителям
+                $defensesBySupervisor = [];
+                foreach ($dissertations as $dissertation) {
+                    $supervisor = $dissertation->postgraduate->supervisor;
+                    if ($supervisor) {
+                        $key = $supervisor->supervisor_id;
+                        if (!isset($defensesBySupervisor[$key])) {
+                            $defensesBySupervisor[$key] = [
+                                'name' => $supervisor->surname . ' ' . $supervisor->name . ' ' . $supervisor->patronymic,
+                                'count' => 0,
+                                'dissertations' => []
+                            ];
+                        }
+                        $defensesBySupervisor[$key]['count']++;
+                        $defensesBySupervisor[$key]['dissertations'][] = [
+                            'topic' => $dissertation->topic,
+                            'postgraduate' => $dissertation->postgraduate->surname . ' ' . $dissertation->postgraduate->name,
+                            'approval_date' => $dissertation->approval_date,
+                            'vak_specialty' => $dissertation->vak_specialty
+                        ];
+                    }
+                }
+                
+                $reportData = [
+                    'date_from' => $dateFrom,
+                    'date_to' => $dateTo,
+                    'total_defenses' => $totalDefenses,
+                    'by_supervisor' => $defensesBySupervisor,
+                    'dissertations' => $dissertations
+                ];
+                
+                if ($totalDefenses == 0) {
+                    $message = 'За указанный период защит не найдено.';
+                }
+            }
+        }
+        
+        return new View('site.reports', [
+            'message' => $message,
+            'reportData' => $reportData,
+            'dateFrom' => $dateFrom,
+            'dateTo' => $dateTo,
+            'totalDefenses' => $totalDefenses,
+            'user' => $user
+        ]);
     }
     
     
@@ -144,10 +226,16 @@ class Site
 
     public function addPublication(Request $request): string
     {
+        $user = app()->auth::user();
         $message = '';
         
-        // Получаем списки для выпадающих меню
-        $staff = Staff::all();  // сотрудники = научные руководители
+        if ($user->role_id == 1) {
+            $staff = Staff::all();
+        } else {
+
+            $staff = Staff::where('supervisor_id', $user->supervisor_id)->get();
+        }
+        
         $editions = Edition::all();
         $indexTypes = IndexType::all();
         
@@ -185,7 +273,8 @@ class Site
             'message' => $message,
             'staff' => $staff,
             'editions' => $editions,
-            'indexTypes' => $indexTypes
+            'indexTypes' => $indexTypes,
+            'user' => $user 
         ]);
     }
 
@@ -208,12 +297,10 @@ class Site
         $user = app()->auth::user();
         $publication = Publication::find($id);
         
-        // Проверка: существует ли публикация
         if (!$publication) {
             app()->route->redirect('/publications');
         }
         
-        // Проверка прав: админ может всё, сотрудник только свои
         if ($user->role_id != 1 && $publication->staff_id != $user->supervisor_id) {
             app()->route->redirect('/publications');
         }
@@ -260,19 +347,15 @@ class Site
         ]);
     }
 
-    // ========== УДАЛЕНИЕ ПУБЛИКАЦИИ ==========
-
     public function deletePublication($id): void
     {
         $user = app()->auth::user();
         $publication = Publication::find($id);
         
-        // Проверка: существует ли публикация
         if (!$publication) {
             app()->route->redirect('/publications');
         }
         
-        // Проверка прав: админ может всё, сотрудник только свои
         if ($user->role_id != 1 && $publication->staff_id != $user->supervisor_id) {
             app()->route->redirect('/publications');
         }
@@ -280,4 +363,261 @@ class Site
         $publication->delete();
         app()->route->redirect('/publications');
     }
+
+    // ========== АСПИРАНТЫ ==========
+
+    public function addPostgraduate(Request $request): string
+    {
+        $user = app()->auth::user();  // ← ЭТА СТРОКА УЖЕ ЕСТЬ
+        $message = '';
+
+        if ($request->method === 'POST') {
+            $validator = new Validator($request->all(), [
+                'name' => ['required'],
+                'surname' => ['required'],
+            ], ['required' => 'Поле :field пусто']);
+
+            if (!$validator->fails()) {
+                Postgraduate::create([
+                    'name' => $request->name,
+                    'surname' => $request->surname,
+                    'patronymic' => $request->patronymic,
+                    'supervisor_id' => $user->role_id == 1
+                        ? ($request->supervisor_id ?? $user->supervisor_id)
+                        : $user->supervisor_id
+                ]);
+                $message = 'Аспирант успешно добавлен!';
+            } else {
+                $message = 'Ошибки валидации: ' . json_encode($validator->errors(), JSON_UNESCAPED_UNICODE);
+            }
+        }
+
+        $supervisors = Staff::all();
+        
+        return new View('site.add_postgraduate', [
+            'message' => $message,
+            'supervisors' => $supervisors,
+            'user' => $user  // ← ДОБАВЬТЕ ЭТУ СТРОКУ
+        ]);
+    }
+
+    public function postgraduates(Request $request): string
+    {
+        $user = app()->auth::user();
+        $isAdmin = $user->role_id == 1;
+        
+        // Получаем всех научных руководителей для фильтра
+        $supervisors = Staff::all();
+        
+        // Параметр фильтрации
+        $searchSupervisorId = $request->get('supervisor_id') ?? '';
+        
+        // Запрос на получение аспирантов
+        $query = Postgraduate::with('supervisor');
+        
+        // Фильтр по научному руководителю
+        if (!empty($searchSupervisorId)) {
+            $query->where('supervisor_id', $searchSupervisorId);
+        }
+        
+        $postgraduates = $query->get();
+        
+        return new View('site.postgraduates', [
+            'postgraduates' => $postgraduates,
+            'isAdmin' => $isAdmin,
+            'user' => $user,
+            'supervisors' => $supervisors,
+            'searchSupervisorId' => $searchSupervisorId
+        ]);
+    }
+
+    public function editPostgraduate($id, Request $request): string
+    {
+        $user = app()->auth::user();
+        $postgraduate = Postgraduate::find($id);
+        
+        if (!$postgraduate) {
+            app()->route->redirect('/postgraduates');
+        }
+        
+        if ($user->role_id != 1 && $postgraduate->supervisor_id != $user->supervisor_id) {
+            app()->route->redirect('/postgraduates');
+        }
+        
+        $message = '';
+        $supervisors = Staff::all();
+        
+        if ($request->method === 'POST') {
+            $validator = new Validator($request->all(), [
+                'name' => ['required'],
+                'surname' => ['required'],
+            ], ['required' => 'Поле :field пусто']);
+            
+            if ($validator->fails()) {
+                $message = 'Ошибки валидации: ' . json_encode($validator->errors(), JSON_UNESCAPED_UNICODE);
+            } else {
+                $postgraduate->name = $request->name;
+                $postgraduate->surname = $request->surname;
+                $postgraduate->patronymic = $request->patronymic;
+                
+                if ($user->role_id == 1 && $request->supervisor_id) {
+                    $postgraduate->supervisor_id = $request->supervisor_id;
+                }
+                
+                if ($postgraduate->save()) {
+                    $message = 'Аспирант успешно обновлён!';
+                } else {
+                    $message = 'Ошибка при обновлении аспиранта';
+                }
+            }
+        }
+        
+        return new View('site.edit_postgraduate', [
+            'message' => $message,
+            'postgraduate' => $postgraduate,
+            'supervisors' => $supervisors,
+            'user' => $user
+        ]);
+    }
+
+    public function deletePostgraduate($id): void
+    {
+        $user = app()->auth::user();
+        $postgraduate = Postgraduate::find($id);
+        
+        if (!$postgraduate) {
+            app()->route->redirect('/postgraduates');
+        }
+        
+        if ($user->role_id != 1 && $postgraduate->supervisor_id != $user->supervisor_id) {
+            app()->route->redirect('/postgraduates');
+        }
+        
+        $postgraduate->delete();
+        app()->route->redirect('/postgraduates');
+    }
+
+    // ========== ДИССЕРТАЦИИ ==========
+
+    public function dissertations(): string
+    {
+        $user = app()->auth::user();
+        $isAdmin = ($user->role_id == 1);
+        
+        $dissertations = Dissertation::with(['postgraduate', 'status'])->get();
+        
+        return new View('site.dissertations', [
+            'isAdmin' => $isAdmin,
+            'user' => $user,
+            'dissertations' => $dissertations
+        ]);
+    }
+
+    public function addDissertation(Request $request): string
+    {
+        $message = '';
+        $user = app()->auth::user();
+        $isAdmin = $user->role_id == 1;
+
+        if ($isAdmin) {
+            $postgraduates = Postgraduate::with('supervisor')->get();
+        } else {
+            $postgraduates = Postgraduate::where('supervisor_id', $user->supervisor_id)
+                ->with('supervisor')
+                ->get();
+        }
+
+        $statuses = DissertationStatus::all();
+
+        if ($request->method === 'POST') {
+            $validator = new Validator($request->all(), [
+                'postgraduate_id' => ['required'],
+                'topic' => ['required'],
+                'status_id' => ['required']
+            ], ['required' => 'Поле :field пусто']);
+
+            if (!$validator->fails()) {
+                Dissertation::create([
+                    'postgraduate_id' => $request->postgraduate_id,
+                    'topic' => $request->topic,
+                    'approval_date' => $request->approval_date,
+                    'status_id' => $request->status_id,
+                    'vak_specialty' => $request->vak_specialty
+                ]);
+                $message = 'Диссертация успешно добавлена!';
+            } else {
+                $message = 'Ошибки валидации: ' . json_encode($validator->errors(), JSON_UNESCAPED_UNICODE);
+            }
+        }
+
+        return new View('site.add_dissertation', [
+            'message' => $message,
+            'postgraduates' => $postgraduates,
+            'statuses' => $statuses
+        ]);
+    }
+
+    public function editDissertation($id, Request $request): string
+    {
+        $dissertation = Dissertation::with('postgraduate')->find($id);
+        $user = app()->auth::user();
+        
+        if (!$dissertation) {
+            app()->route->redirect('/dissertations');
+        }
+        
+        if ($user->role_id != 1 && $dissertation->postgraduate->supervisor_id != $user->supervisor_id) {
+            app()->route->redirect('/dissertations');
+        }
+        
+        $message = '';
+        $statuses = DissertationStatus::all();
+        
+        if ($request->method === 'POST') {
+            $validator = new Validator($request->all(), [
+                'topic' => ['required'],
+                'status_id' => ['required']
+            ], ['required' => 'Поле :field пусто']);
+            
+            if ($validator->fails()) {
+                $message = 'Ошибки валидации: ' . json_encode($validator->errors(), JSON_UNESCAPED_UNICODE);
+            } else {
+                $dissertation->topic = $request->topic;
+                $dissertation->approval_date = $request->approval_date;
+                $dissertation->status_id = $request->status_id;
+                $dissertation->vak_specialty = $request->vak_specialty;
+                
+                if ($dissertation->save()) {
+                    $message = 'Диссертация успешно обновлена!';
+                } else {
+                    $message = 'Ошибка при обновлении диссертации';
+                }
+            }
+        }
+        
+        return new View('site.edit_dissertation', [
+            'message' => $message,
+            'dissertation' => $dissertation,
+            'statuses' => $statuses
+        ]);
+    }
+
+    public function deleteDissertation($id): void
+    {
+        $dissertation = Dissertation::with('postgraduate')->find($id);
+        $user = app()->auth::user();
+        
+        if (!$dissertation) {
+            app()->route->redirect('/dissertations');
+        }
+        
+        if ($user->role_id != 1 && $dissertation->postgraduate->supervisor_id != $user->supervisor_id) {
+            app()->route->redirect('/dissertations');
+        }
+        
+        $dissertation->delete();
+        app()->route->redirect('/dissertations');
+    }
+
+    
 }

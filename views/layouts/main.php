@@ -5,29 +5,26 @@
         <link rel="stylesheet" href="public\assets\style\main.css">
         <link rel="stylesheet" href="public\assets\style\login.css">
         <link rel="stylesheet" href="public\assets\style\register.css">
-        <title>Pop it MVC</title>
-        
+        <title>Научный отдел | Аспирантура</title>
     </head>
     <body>
         <header class="wrapper">
             <nav>
-                <a href="<?= app()->route->getUrl('/') ?>">Главная</a>
-
                 <?php if (app()->auth::check()): ?>
                     <?php
                         $user = app()->auth::user();
-                        $isAdmin = ($user->id_role == 1);
+                        $isAdmin = ($user->role_id == 1);
                     ?>
 
                     <?php if ($isAdmin): ?>
-                        <!-- Меню администратора -->
                         <a href="<?= app()->route->getUrl('/dashboard') ?>">Панель администратора</a>
-                        <a href="<?= app()->route->getUrl('/dissertations') ?>">Управление диссертациями</a>
-                        <a href="<?= app()->route->getUrl('/publications') ?>">Управление публикациями</a>
-                        <a href="<?= app()->route->getUrl('/admin/users/add') ?>">Добавить сотрудника</a>
+                        <a href="<?= app()->route->getUrl('/postgraduates') ?>">Аспиранты</a>
+                        <a href="<?= app()->route->getUrl('/dissertations') ?>">Диссертации</a>
+                        <a href="<?= app()->route->getUrl('/reports') ?>">Отчёты</a>
+                        <a href="<?= app()->route->getUrl('/publications') ?>">Публикации</a>
                     <?php else: ?>
-                        <!-- Меню сотрудника научного отдела -->
                         <a href="<?= app()->route->getUrl('/dashboard') ?>">Панель сотрудника</a>
+                        <a href="<?= app()->route->getUrl('/postgraduates') ?>">Аспиранты</a>
                         <a href="<?= app()->route->getUrl('/dissertations') ?>">Диссертации</a>
                         <a href="<?= app()->route->getUrl('/publications') ?>">Публикации</a>
                         <a href="<?= app()->route->getUrl('/reports') ?>">Отчёты</a>
@@ -35,9 +32,9 @@
                     <?php endif; ?>
 
                     <a href="<?= app()->route->getUrl('/logout') ?>">Выход (<?= $user->name ?>)</a>
-                    <?php else: ?>
-                        <a href="<?= app()->route->getUrl('/login') ?>">Вход</a>
-                    <?php endif; ?>
+                <?php else: ?>
+                    <a href="<?= app()->route->getUrl('/login') ?>">Вход</a>
+                <?php endif; ?>
             </nav>
         </header>
         <main class="wrapper">
@@ -45,5 +42,3 @@
         </main>
     </body>
 </html>
-
-   

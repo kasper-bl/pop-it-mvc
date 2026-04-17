@@ -26,6 +26,9 @@
             <?php foreach ($staff as $person): ?>
                 <option value="<?= $person->supervisor_id ?>">
                     <?= htmlspecialchars($person->surname . ' ' . $person->name . ' ' . $person->patronymic) ?>
+                    <?php if ($user->role_id != 1 && $person->supervisor_id == $user->supervisor_id): ?>
+                        (это вы)
+                    <?php endif; ?>
                 </option>
             <?php endforeach; ?>
         </select>
