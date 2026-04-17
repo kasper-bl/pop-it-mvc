@@ -1,0 +1,163 @@
+@import 'root.css';
+
+.publications {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.publications__title {
+    display: flex;
+    justify-content: center;
+}
+
+.publications__title h1 {
+    color: var(--text-color);
+    font-size: 28px;
+}
+
+.publications__list {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.publications__list-title {
+    background-color: #fff;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 5px;
+}
+
+
+.btn-add {
+    background-color: var(--green);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.5s ease;
+}
+
+.btn-add:hover {
+    background-color: var(--green-hover);
+}
+
+.publications-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 25px;
+}
+
+.publication-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+
+
+.publication-card__image {
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+}
+
+.publication-card__image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+
+
+.publication-card__no-image {
+    width: 100%;
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 48px;
+}
+
+.publication-card__no-image span {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 10px 20px;
+    border-radius: 20px;
+
+}
+
+.publication-card__content {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 15px 15px 0 15px;
+}
+
+.publication-card__title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #262626;
+    line-height: 1.4;
+}
+
+.publication-card__actions {
+    display: flex;
+    gap: 10px;
+    padding: 12px 15px;
+}
+
+.btn-edit,
+.btn-delete {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.btn-edit {
+    background-color: var(--green);
+    color: white;
+}
+
+.btn-edit:hover {
+    background-color: var(--green-hover);
+}
+
+.btn-delete {
+    background-color: #ed4956;
+    color: white;
+}
+
+.btn-delete:hover {
+    background-color: #c73a46;
+}
+
+.publication-card__view-only {
+    padding: 12px 15px;
+    text-align: center;
+    border-top: 1px solid #efefef;
+    background: #fafafa;
+}
+
+.publication-card__view-only span {
+    font-size: 12px;
+    color: #8e8e8e;
+}
+
+.empty-message {
+    text-align: center;
+    padding: 60px;
+    color: #8e8e8e;
+    font-size: 18px;
+    background: #fafafa;
+    border-radius: 12px;
+}

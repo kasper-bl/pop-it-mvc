@@ -37,5 +37,3 @@ Route::add('GET', '/delete-publication/{id}', [Controller\Site::class, 'deletePu
 // Отчёты 
 Route::add(['GET', 'POST'], '/reports', [Controller\Site::class, 'reports'])->middleware('auth');
 
-// Поиск
-Route::add(['GET', 'POST'], '/search', [Controller\Site::class, 'search'])->middleware('auth');

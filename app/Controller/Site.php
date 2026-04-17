@@ -128,7 +128,7 @@ class Site
         app()->route->redirect('/dashboard');
     }
 
-     public function reports(Request $request): string
+    public function reports(Request $request): string
     {
         $user = app()->auth::user();
         
@@ -144,15 +144,15 @@ class Site
             
             $validator = new Validator($request->all(), [
                 'date_from' => ['required'],
-                'date_to' => ['required'],
+                'date_to' => ['required', 'date_range:' . $dateFrom]
             ], [
-                'required' => 'Поле :field пусто'
+                'required' => 'Поле :field пусто',
+                'date_range' => 'Дата "до" не может быть раньше даты "от"'
             ]);
             
             if ($validator->fails()) {
                 $message = 'Ошибки валидации: ' . json_encode($validator->errors(), JSON_UNESCAPED_UNICODE);
             } else {
-                // Получаем защищённые диссертации за период
                 $dissertations = Dissertation::with(['postgraduate', 'status'])
                     ->whereHas('status', function($query) {
                         $query->where('name', 'защищена');
@@ -162,7 +162,6 @@ class Site
                 
                 $totalDefenses = $dissertations->count();
                 
-                // Группировка по научным руководителям
                 $defensesBySupervisor = [];
                 foreach ($dissertations as $dissertation) {
                     $supervisor = $dissertation->postgraduate->supervisor;
@@ -209,20 +208,49 @@ class Site
         ]);
     }
     
-    
-    public function search(): string
+    public function search(Request $request): string
     {
         $user = app()->auth::user();
         
-        // Только для сотрудников
         if ($user->role_id == 1) {
             app()->route->redirect('/dashboard');
         }
         
-        return new View('site.search');
+        $message = '';
+        $postgraduates = [];
+        $searchSupervisorId = '';
+        
+        $supervisors = Staff::all();
+        
+        if ($request->method === 'POST') {
+            $searchSupervisorId = $request->supervisor_id;
+            
+            if (empty($searchSupervisorId)) {
+                $message = 'Пожалуйста, выберите научного руководителя';
+            } else {
+                $supervisor = Staff::find($searchSupervisorId);
+                if (!$supervisor) {
+                    $message = 'Выбранный научный руководитель не найден';
+                } else {
+                    $postgraduates = Postgraduate::with(['supervisor', 'dissertation.status'])
+                        ->where('supervisor_id', $searchSupervisorId)
+                        ->get();
+                    
+                    if ($postgraduates->isEmpty()) {
+                        $message = 'У выбранного научного руководителя нет аспирантов';
+                    }
+                }
+            }
+        }
+        
+        return new View('site.search', [
+            'message' => $message,
+            'supervisors' => $supervisors,
+            'postgraduates' => $postgraduates,
+            'searchSupervisorId' => $searchSupervisorId,
+            'user' => $user
+        ]);
     }
-
-    // ========== ПУБЛИКАЦИИ ==========
 
     public function addPublication(Request $request): string
     {
@@ -232,7 +260,6 @@ class Site
         if ($user->role_id == 1) {
             $staff = Staff::all();
         } else {
-
             $staff = Staff::where('supervisor_id', $user->supervisor_id)->get();
         }
         
@@ -242,29 +269,66 @@ class Site
         if ($request->method === 'POST') {
             $validator = new Validator($request->all(), [
                 'title' => ['required'],
-                'publication_date' => ['required'],
+                'publication_date' => ['required', 'year'],
                 'staff_id' => ['required'],
                 'edition_id' => ['required'],
                 'index_type_id' => ['required']
             ], [
-                'required' => 'Поле :field пусто'
+                'required' => 'Поле :field пусто',
+                'year' => 'Год публикации не может быть в будущем'
             ]);
             
             if ($validator->fails()) {
                 $message = 'Ошибки валидации: ' . json_encode($validator->errors(), JSON_UNESCAPED_UNICODE);
             } else {
-                $publicationData = [
-                    'title' => $request->title,
-                    'publication_date' => $request->publication_date,
-                    'staff_id' => $request->staff_id,
-                    'edition_id' => $request->edition_id,
-                    'index_type_id' => $request->index_type_id
-                ];
+                $fileError = null;
+                $imagePath = null;
                 
-                if (Publication::create($publicationData)) {
-                    $message = 'Публикация успешно добавлена!';
+                if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                    $fileValidator = new Validator(['image' => $_FILES['image']], [
+                        'image' => ['file']
+                    ], [
+                        'file' => 'Файл должен быть изображением (JPG, PNG, GIF, WEBP)'
+                    ]);
+                    
+                    if ($fileValidator->fails()) {
+                        $fileError = 'Ошибки валидации: ' . json_encode($fileValidator->errors(), JSON_UNESCAPED_UNICODE);
+                    } else {
+                        $uploadDir = __DIR__ . '/../../public/uploads/publications/';
+                        
+                        if (!is_dir($uploadDir)) {
+                            mkdir($uploadDir, 0777, true);
+                        }
+                        
+                        $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+                        $filename = time() . '_' . uniqid() . '.' . $ext;
+                        $uploadFile = $uploadDir . $filename;
+                        
+                        if (move_uploaded_file($_FILES['image']['tmp_name'], $uploadFile)) {
+                            $imagePath = '/uploads/publications/' . $filename;
+                        } else {
+                            $fileError = 'Ошибка при загрузке изображения';
+                        }
+                    }
+                }
+                
+                if ($fileError) {
+                    $message = $fileError;
                 } else {
-                    $message = 'Ошибка при добавлении публикации';
+                    $publicationData = [
+                        'title' => $request->title,
+                        'publication_date' => $request->publication_date,
+                        'staff_id' => $request->staff_id,
+                        'edition_id' => $request->edition_id,
+                        'index_type_id' => $request->index_type_id,
+                        'image_path' => $imagePath
+                    ];
+                    
+                    if (Publication::create($publicationData)) {
+                        $message = 'Публикация успешно добавлена!';
+                    } else {
+                        $message = 'Ошибка при добавлении публикации';
+                    }
                 }
             }
         }
@@ -274,7 +338,7 @@ class Site
             'staff' => $staff,
             'editions' => $editions,
             'indexTypes' => $indexTypes,
-            'user' => $user 
+            'user' => $user
         ]);
     }
 
@@ -313,12 +377,13 @@ class Site
         if ($request->method === 'POST') {
             $validator = new Validator($request->all(), [
                 'title' => ['required'],
-                'publication_date' => ['required'],
+                'publication_date' => ['required', 'year'],
                 'staff_id' => ['required'],
                 'edition_id' => ['required'],
                 'index_type_id' => ['required']
             ], [
-                'required' => 'Поле :field пусто'
+                'required' => 'Поле :field пусто',
+                'year' => 'Год публикации не может быть в будущем'
             ]);
             
             if ($validator->fails()) {
@@ -330,9 +395,41 @@ class Site
                 $publication->edition_id = $request->edition_id;
                 $publication->index_type_id = $request->index_type_id;
                 
-                if ($publication->save()) {
+                if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                    $fileValidator = new Validator(['image' => $_FILES['image']], [
+                        'image' => ['file']
+                    ], [
+                        'file' => 'Файл должен быть изображением (JPG, PNG, GIF, WEBP)'
+                    ]);
+                    
+                    if ($fileValidator->fails()) {
+                        $message = 'Ошибки валидации: ' . json_encode($fileValidator->errors(), JSON_UNESCAPED_UNICODE);
+                    } else {
+                        $uploadDir = __DIR__ . '/../../public/uploads/publications/';
+                        
+                        if (!is_dir($uploadDir)) {
+                            mkdir($uploadDir, 0777, true);
+                        }
+                        
+                        if ($publication->image_path && file_exists(__DIR__ . '/../..' . $publication->image_path)) {
+                            unlink(__DIR__ . '/../..' . $publication->image_path);
+                        }
+                        
+                        $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+                        $filename = time() . '_' . uniqid() . '.' . $ext;
+                        $uploadFile = $uploadDir . $filename;
+                        
+                        if (move_uploaded_file($_FILES['image']['tmp_name'], $uploadFile)) {
+                            $publication->image_path = '/uploads/publications/' . $filename;
+                        } else {
+                            $message = 'Ошибка при загрузке изображения';
+                        }
+                    }
+                }
+                
+                if (empty($message) && $publication->save()) {
                     $message = 'Публикация успешно обновлена!';
-                } else {
+                } elseif (empty($message)) {
                     $message = 'Ошибка при обновлении публикации';
                 }
             }
@@ -364,11 +461,9 @@ class Site
         app()->route->redirect('/publications');
     }
 
-    // ========== АСПИРАНТЫ ==========
-
     public function addPostgraduate(Request $request): string
     {
-        $user = app()->auth::user();  // ← ЭТА СТРОКА УЖЕ ЕСТЬ
+        $user = app()->auth::user();
         $message = '';
 
         if ($request->method === 'POST') {
@@ -397,7 +492,7 @@ class Site
         return new View('site.add_postgraduate', [
             'message' => $message,
             'supervisors' => $supervisors,
-            'user' => $user  // ← ДОБАВЬТЕ ЭТУ СТРОКУ
+            'user' => $user
         ]);
     }
 
@@ -406,16 +501,11 @@ class Site
         $user = app()->auth::user();
         $isAdmin = $user->role_id == 1;
         
-        // Получаем всех научных руководителей для фильтра
         $supervisors = Staff::all();
-        
-        // Параметр фильтрации
         $searchSupervisorId = $request->get('supervisor_id') ?? '';
         
-        // Запрос на получение аспирантов
         $query = Postgraduate::with('supervisor');
         
-        // Фильтр по научному руководителю
         if (!empty($searchSupervisorId)) {
             $query->where('supervisor_id', $searchSupervisorId);
         }
@@ -496,8 +586,6 @@ class Site
         $postgraduate->delete();
         app()->route->redirect('/postgraduates');
     }
-
-    // ========== ДИССЕРТАЦИИ ==========
 
     public function dissertations(): string
     {
@@ -618,6 +706,4 @@ class Site
         $dissertation->delete();
         app()->route->redirect('/dissertations');
     }
-
-    
 }

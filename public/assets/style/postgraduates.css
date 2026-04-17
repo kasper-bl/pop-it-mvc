@@ -1,0 +1,176 @@
+@import 'root.css';
+
+.postgraduates {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.postgraduates__filter,
+.postgraduates__list {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.postgraduates__filter-title,
+.postgraduates__list-title {
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+
+.postgraduates__filter-content,
+.postgraduates__list-content {
+    padding: 20px;
+}
+
+.filter-form {
+    display: flex;
+    gap: 20px;
+}
+
+.filter-form__field {
+    flex: 1;
+    min-width: 250px;
+}
+
+.filter-select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    background-color: white;
+}
+
+.filter-form__actions {
+    display: flex;
+    gap: 25px;
+}
+
+.btn-filter, .btn-reset {
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s;
+    border: none;
+}
+
+.btn-filter {
+    background-color: var(--green);
+    color: white;
+}
+
+.btn-filter:hover {
+    background-color: var(--green-hover);
+}
+
+.btn-reset {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-reset:hover {
+    background-color: #5a6268;
+}
+
+
+.postgraduates-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+}
+
+.postgraduates-table thead th {
+    background-color: var(--green);
+    color: white;
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 600;
+}
+
+.postgraduates-table tbody td {
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--bg-main);
+}
+
+.postgraduates-table tbody tr:hover {
+    background-color: var(--bg-main);
+}
+
+.dissertation-cell {
+    text-align: center;
+}
+
+.btn-dissertation, 
+.btn-dissertation-add {
+    padding: 5px 10px;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.btn-dissertation {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.btn-dissertation:hover {
+    background-color: #138496;
+}
+
+.btn-dissertation-add {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-dissertation-add:hover {
+    background-color: #218838;
+}
+
+.actions-cell {
+    text-align: center;
+    white-space: nowrap;
+}
+
+.btn-edit, 
+.btn-delete {
+    padding: 5px 10px;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.btn-edit {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.btn-edit:hover {
+    background-color: #e0a800;
+}
+
+.btn-delete {
+    background-color: var(--btn-delete);
+    color: #fff;
+}
+
+.btn-delete:hover {
+    background-color: var(--btn-delete-hover);
+}
+
+
+.empty-message {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    font-style: italic;
+}
+

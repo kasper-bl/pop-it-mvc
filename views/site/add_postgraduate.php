@@ -1,45 +1,47 @@
-<h1>Добавление аспиранта</h1>
+<div class="form-container">
+    <h1 class="form-title">Добавление аспиранта</h1>
 
-<?php if (!empty($message)): ?>
-    <div style="padding: 10px; margin: 10px 0; background: #f0f0f0; border: 1px solid #ccc;">
-        <?= htmlspecialchars($message) ?>
-    </div>
-<?php endif; ?>
-
-<form method="post">
-    <input type="hidden" name="csrf_token" value="<?= app()->auth::generateCSRF() ?>">
-    
-    <p>
-        <label>Фамилия:</label><br>
-        <input type="text" name="surname" required>
-    </p>
-    
-    <p>
-        <label>Имя:</label><br>
-        <input type="text" name="name" required>
-    </p>
-    
-    <p>
-        <label>Отчество:</label><br>
-        <input type="text" name="patronymic">
-    </p>
-    
-    <?php if ($user->role_id == 1): ?>
-        <p>
-            <label>Научный руководитель:</label><br>
-            <select name="supervisor_id" required>
-                <option value="">Выберите руководителя</option>
-                <?php foreach ($supervisors as $supervisor): ?>
-                    <option value="<?= $supervisor->supervisor_id ?>">
-                        <?= htmlspecialchars($supervisor->surname . ' ' . $supervisor->name . ' ' . $supervisor->patronymic) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </p>
+    <?php if (!empty($message)): ?>
+        <div class="message-error">
+            <?= htmlspecialchars($message) ?>
+        </div>
     <?php endif; ?>
-    
-    <p>
-        <button type="submit">Добавить аспиранта</button>
-        <a href="<?= app()->route->getUrl('/postgraduates') ?>">Назад к списку</a>
-    </p>
-</form>
+
+    <form method="post" class="form">
+        <input type="hidden" name="csrf_token" value="<?= app()->auth::generateCSRF() ?>">
+        
+        <div class="form-group">
+            <label class="form-label">Фамилия:</label>
+            <input type="text" name="surname" class="form-input" required>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Имя:</label>
+            <input type="text" name="name" class="form-input" required>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Отчество:</label>
+            <input type="text" name="patronymic" class="form-input">
+        </div>
+        
+        <?php if ($user->role_id == 1): ?>
+            <div class="form-group">
+                <label class="form-label">Научный руководитель:</label>
+                <select name="supervisor_id" class="form-select" required>
+                    <option value="">Выберите руководителя</option>
+                    <?php foreach ($supervisors as $supervisor): ?>
+                        <option value="<?= $supervisor->supervisor_id ?>">
+                            <?= htmlspecialchars($supervisor->surname . ' ' . $supervisor->name . ' ' . $supervisor->patronymic) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        <?php endif; ?>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn-submit">Добавить аспиранта</button>
+            <a href="<?= app()->route->getUrl('/postgraduates') ?>" class="btn-back">Назад к списку</a>
+        </div>
+    </form>
+</div>

@@ -1,7 +1,7 @@
 <div class="login">
     <h2>Вход в систему</h2>
     <?php if (!app()->auth::check()): ?>
-        <form method="post">
+        <form class="login__form" method="post">
             <input type="hidden" name="csrf_token" value="<?= app()->auth::generateCSRF() ?>">  
             <input type="text" name="login" placeholder="Логин">
             <input type="password" name="password" placeholder="Пароль">

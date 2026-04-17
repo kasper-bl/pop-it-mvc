@@ -1,0 +1,106 @@
+
+.dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.dashboard__staff-content {
+    display: flex;
+    flex-direction: column;
+
+    gap: 20px;
+}
+
+.dashboard__staff-title {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding-bottom: 10px;
+}
+
+.dashboard__staff-content .staff-table {
+    width: 100%;
+    background-color: #fff;
+    border-collapse: collapse;
+    border-color: #000;
+}
+
+.dashboard__staff-content .staff-table th {
+    background-color: var(--green);
+    color: white;
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 600;
+}
+
+.dashboard__staff-content .staff-table td {
+    padding: 10px 15px;
+}
+
+.dashboard__staff-content .staff-table tr:hover {
+    background-color: var(--bg-main);
+}
+
+.dashboard__staff-content .staff-table td,
+.dashboard__staff-content .staff-table th {
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.dashboard__staff-content .staff-table .btn-delete-user {
+    color: #fff;
+    padding: 5px 20px;
+    background-color: var(--btn-delete);
+    border-radius: 10px;
+    text-decoration: none;
+    transition: all 0.5s ease;
+    display: inline-block;
+}
+
+.dashboard__staff-content .staff-table .btn-delete-user:hover {
+    background-color: var(--btn-delete-hover);
+}
+
+.dashboard__staff-content h3 {
+    text-align: center;
+}
+
+.dashboard__title {
+    margin-bottom: 10px;
+}
+
+.dashboard__title h1 {
+    margin: 0 0 10px 0;
+}
+
+.dashboard__staff {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 0;
+}
+
+.dashboard__staff-title {
+    background: white;
+    border-radius: 8px;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.dashboard__staff-content {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.disabled-action {
+    padding: 5px 10px;
+    background-color: #6c757d;
+    color: white;
+    border-radius: 4px;
+}

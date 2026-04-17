@@ -1,68 +1,69 @@
-<h1>Добавление сотрудника</h1>
+<div class="form-container">
+    <h1 class="form-title">Добавление сотрудника</h1>
 
-<?php if (!empty($message)): ?>
-    <div style="padding: 10px; margin: 10px 0; background: #f0f0f0; border: 1px solid #ccc;">
-        <?php
-        // Пробуем распарсить JSON с ошибками
-        $decoded = json_decode($message, true);
-        if (is_array($decoded)) {
-            echo '<ul>';
-            foreach ($decoded as $field => $errors) {
-                foreach ($errors as $error) {
-                    echo '<li>' . htmlspecialchars($error) . '</li>';
+    <?php if (!empty($message)): ?>
+        <div class="message-error">
+            <?php
+            $decoded = json_decode($message, true);
+            if (is_array($decoded)) {
+                echo '<ul class="error-list">';
+                foreach ($decoded as $field => $errors) {
+                    foreach ($errors as $error) {
+                        echo '<li>' . htmlspecialchars($error) . '</li>';
+                    }
                 }
+                echo '</ul>';
+            } else {
+                echo '<p>' . htmlspecialchars($message) . '</p>';
             }
-            echo '</ul>';
-        } else {
-            echo htmlspecialchars($message);
-        }
-        ?>
-    </div>
-<?php endif; ?>
+            ?>
+        </div>
+    <?php endif; ?>
 
-<form method="post">
-    <input type="hidden" name="csrf_token" value="<?= app()->auth::generateCSRF() ?>">
-    
-    <p>
-        <label>Логин:</label><br>
-        <input type="text" name="login">
-    </p>
-    
-    <p>
-        <label>Пароль:</label><br>
-        <input type="password" name="password">
-    </p>
-    
-    <p>
-        <label>Имя:</label><br>
-        <input type="text" name="name">
-    </p>
-    
-    <p>
-        <label>Фамилия:</label><br>
-        <input type="text" name="surname">
-    </p>
-    
-    <p>
-        <label>Отчество:</label><br>
-        <input type="text" name="patronymic">
-    </p>
-    
-    <p>
-        <label>Кафедра/отдел:</label><br>
-        <input type="text" name="department">
-    </p>
-    
-    <p>
-        <label>Роль:</label><br>
-        <select name="id_role">
-            <option value="2">Сотрудник научного отдела</option>
-            <option value="1">Администратор</option>
-        </select>
-    </p>
-    
-    <p>
-        <button type="submit">Добавить сотрудника</button>
-        <a href="/dashboard">Назад</a>
-    </p>
-</form>
+    <form method="post" class="form">
+        <input type="hidden" name="csrf_token" value="<?= app()->auth::generateCSRF() ?>">
+        
+        <div class="form-group">
+            <label class="form-label">Логин:</label>
+            <input type="text" name="login" class="form-input" required>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Пароль:</label>
+            <input type="password" name="password" class="form-input" required>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Имя:</label>
+            <input type="text" name="name" class="form-input" required>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Фамилия:</label>
+            <input type="text" name="surname" class="form-input" required>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Отчество:</label>
+            <input type="text" name="patronymic" class="form-input">
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Кафедра/отдел:</label>
+            <input type="text" name="department" class="form-input">
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Роль:</label>
+            <select name="id_role" class="form-select">
+                <option value="2">Сотрудник научного отдела</option>
+                <option value="1">Администратор</option>
+            </select>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn-submit">Добавить сотрудника</button>
+            <a href="<?= app()->route->getUrl('/dashboard') ?>" class="btn-back">Назад</a>
+        </div>
+    </form>
+</div>
