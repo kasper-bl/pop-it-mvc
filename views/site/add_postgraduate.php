@@ -12,12 +12,12 @@
         
         <div class="form-group">
             <label class="form-label">Фамилия:</label>
-            <input type="text" name="surname" class="form-input" required>
+            <input type="text" name="surname" class="form-input">
         </div>
         
         <div class="form-group">
             <label class="form-label">Имя:</label>
-            <input type="text" name="name" class="form-input" required>
+            <input type="text" name="name" class="form-input">
         </div>
         
         <div class="form-group">
@@ -28,7 +28,7 @@
         <?php if ($user->role_id == 1): ?>
             <div class="form-group">
                 <label class="form-label">Научный руководитель:</label>
-                <select name="supervisor_id" class="form-select" required>
+                <select name="supervisor_id" class="form-select">
                     <option value="">Выберите руководителя</option>
                     <?php foreach ($supervisors as $supervisor): ?>
                         <option value="<?= $supervisor->supervisor_id ?>">

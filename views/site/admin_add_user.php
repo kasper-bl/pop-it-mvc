@@ -25,22 +25,22 @@
         
         <div class="form-group">
             <label class="form-label">Логин:</label>
-            <input type="text" name="login" class="form-input" required>
+            <input type="text" name="login" class="form-input">
         </div>
         
         <div class="form-group">
             <label class="form-label">Пароль:</label>
-            <input type="password" name="password" class="form-input" required>
+            <input type="password" name="password" class="form-input">
         </div>
         
         <div class="form-group">
             <label class="form-label">Имя:</label>
-            <input type="text" name="name" class="form-input" required>
+            <input type="text" name="name" class="form-input">
         </div>
         
         <div class="form-group">
             <label class="form-label">Фамилия:</label>
-            <input type="text" name="surname" class="form-input" required>
+            <input type="text" name="surname" class="form-input">
         </div>
         
         <div class="form-group">

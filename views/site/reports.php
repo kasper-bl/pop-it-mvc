@@ -12,12 +12,12 @@
         
         <div class="form-group">
             <label class="form-label">Дата с:</label>
-            <input type="date" name="date_from" value="<?= htmlspecialchars($dateFrom) ?>" class="form-input" required>
+            <input type="date" name="date_from" value="<?= htmlspecialchars($dateFrom) ?>" class="form-input">
         </div>
         
         <div class="form-group">
             <label class="form-label">Дата по:</label>
-            <input type="date" name="date_to" value="<?= htmlspecialchars($dateTo) ?>" class="form-input" required>
+            <input type="date" name="date_to" value="<?= htmlspecialchars($dateTo) ?>" class="form-input">
         </div>
         
         <div class="form-actions">

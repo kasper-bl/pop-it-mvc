@@ -3,17 +3,19 @@
 namespace Middlewares;
 
 use Src\Request;
+use TrimMiddleware\TrimMiddleware as BaseTrimMiddleware;
 
 class TrimMiddleware
 {
+    private BaseTrimMiddleware $trimMiddleware;
+
+    public function __construct()
+    {
+        $this->trimMiddleware = new BaseTrimMiddleware();
+    }
+
     public function handle(Request $request): Request
     {
-        foreach ($request->all() as $key => $value) {
-            if (is_string($value)) {
-                $request->set($key, trim($value));
-            }
-        }
-        
-        return $request;
+        return $this->trimMiddleware->handle($request);
     }
 }

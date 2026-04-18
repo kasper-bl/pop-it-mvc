@@ -12,7 +12,7 @@
         
         <div class="form-group">
             <label class="form-label">Аспирант:</label>
-            <select name="postgraduate_id" class="form-select" required>
+            <select name="postgraduate_id" class="form-select" >
                 <option value="">Выберите аспиранта</option>
                 <?php foreach ($postgraduates as $postgraduate): ?>
                     <option value="<?= $postgraduate->postgraduate_id ?>" <?= isset($_GET['postgraduate_id']) && $_GET['postgraduate_id'] == $postgraduate->postgraduate_id ? 'selected' : '' ?>>
@@ -25,7 +25,7 @@
         
         <div class="form-group">
             <label class="form-label">Тема диссертации:</label>
-            <input type="text" name="topic" class="form-input" required>
+            <input type="text" name="topic" class="form-input">
         </div>
         
         <div class="form-group">
@@ -35,7 +35,7 @@
         
         <div class="form-group">
             <label class="form-label">Статус:</label>
-            <select name="status_id" class="form-select" required>
+            <select name="status_id" class="form-select">
                 <option value="">Выберите статус</option>
                 <?php foreach ($statuses as $status): ?>
                     <option value="<?= $status->status_id ?>">

@@ -15,7 +15,9 @@
         "illuminate/database": "9.x-dev",
         "illuminate/events": "9.x-dev",
         "nikic/fast-route": "v1.x-dev",
-        "yjx/easy-router": "dev-master"
+        "yjx/easy-router": "dev-master",
+        "kasper/trim-middleware": "@dev",
+        "kasper-bl/demo-collect": "dev-main"
     },
     "autoload": {
        "psr-4": {

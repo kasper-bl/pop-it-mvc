@@ -12,17 +12,17 @@
         
         <div class="form-group">
             <label class="form-label">Название публикации:</label>
-            <input type="text" name="title" class="form-input" required>
+            <input type="text" name="title" class="form-input" >
         </div>
         
         <div class="form-group">
             <label class="form-label">Дата публикации:</label>
-            <input type="date" name="publication_date" class="form-input" required>
+            <input type="date" name="publication_date" class="form-input">
         </div>
         
         <div class="form-group">
             <label class="form-label">Научный руководитель (сотрудник):</label>
-            <select name="staff_id" class="form-select" required>
+            <select name="staff_id" class="form-select">
                 <option value="">Выберите сотрудника</option>
                 <?php foreach ($staff as $person): ?>
                     <option value="<?= $person->supervisor_id ?>">
@@ -37,7 +37,7 @@
         
         <div class="form-group">
             <label class="form-label">Издание:</label>
-            <select name="edition_id" class="form-select" required>
+            <select name="edition_id" class="form-select">
                 <option value="">Выберите тип издания</option>
                 <?php foreach ($editions as $edition): ?>
                     <option value="<?= $edition->edition_id ?>">
@@ -49,7 +49,7 @@
         
         <div class="form-group">
             <label class="form-label">Индексация:</label>
-            <select name="index_type_id" class="form-select" required>
+            <select name="index_type_id" class="form-select">
                 <option value="">Выберите индекс</option>
                 <?php foreach ($indexTypes as $index): ?>
                     <option value="<?= $index->index_type_id ?>">
