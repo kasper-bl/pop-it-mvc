@@ -1,6 +1,6 @@
 <?php
 return [
-   'root' => '/practika',
+   'root' => '/pop-it-mvc',
    'routes' => 'routes',
    'views' => 'views'
 ];
