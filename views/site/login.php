@@ -1,5 +1,12 @@
 <div class="login">
     <h2>Вход в систему</h2>
+    
+    <?php if (!empty($message)): ?>
+        <div>
+            <?= htmlspecialchars($message) ?>
+        </div>
+    <?php endif; ?>
+    
     <?php if (!app()->auth::check()): ?>
         <form class="login__form" method="post">
             <input type="hidden" name="csrf_token" value="<?= app()->auth::generateCSRF() ?>">  

@@ -12,18 +12,20 @@
     "minimum-stability": "dev",
     "require": {
         "php": "^7.4 | ^8.0",
+        "kasper-bl/demo-collect": "dev-main",
+        "nikic/fast-route": "v1.x-dev",
         "illuminate/database": "9.x-dev",
         "illuminate/events": "9.x-dev",
-        "nikic/fast-route": "v1.x-dev",
-        "yjx/easy-router": "dev-master",
-        "kasper/trim-middleware": "@dev",
-        "kasper-bl/demo-collect": "dev-main"
+        "kasper-bl/validators": "dev-main"
+
     },
     "autoload": {
        "psr-4": {
            "Src\\": "core/Src/",
            "": "app/"
        }
-   }
-
+   },
+    "require-dev": {
+        "phpunit/phpunit": "9.6.x-dev"
+    }
 }
