@@ -2,8 +2,10 @@
 
 use PHPUnit\Framework\TestCase;
 use Src\Request;
-use Controller\Site;
+use Controller\PostgraduateController;
+use Controller\AuthController;
 use Model\Postgraduate;
+use Model\Staff;
 
 class SiteTest extends TestCase
 {
@@ -55,10 +57,10 @@ class SiteTest extends TestCase
         $request->set('surname', $surname);
         $request->set('patronymic', $patronymic);
         
-        $site = new Site();
+        $controller = new PostgraduateController();
         
         ob_start();
-        $result = $site->addPostgraduate($request);
+        $result = $controller->addPostgraduate($request);
         $output = ob_get_clean();
         
         if ($expected) {
@@ -99,10 +101,11 @@ class SiteTest extends TestCase
         $request->set('login', $userData['login']);
         $request->set('password', $userData['password']);
         
-        $site = new Site();
+        // Используем AuthController вместо Site
+        $controller = new AuthController();
         
         ob_start();
-        $result = $site->login($request);
+        $result = $controller->login($request);
         $output = ob_get_clean();
         
         if (strpos($expectedMessage, 'Location:') === 0) {
