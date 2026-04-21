@@ -22,14 +22,8 @@ class PostgraduateController
             ], ['required' => 'Поле :field пусто']);
 
             if (!$validator->fails()) {
-                Postgraduate::create([
-                    'name' => $request->name,
-                    'surname' => $request->surname,
-                    'patronymic' => $request->patronymic,
-                    'supervisor_id' => $user->role_id == 1
-                        ? ($request->supervisor_id ?? $user->supervisor_id)
-                        : $user->supervisor_id
-                ]);
+                // Бизнес-логика вынесена в модель
+                Postgraduate::createFromRequest($request, $user);
                 $message = 'Аспирант успешно добавлен!';
             } else {
                 $message = 'Ошибки валидации: ' . json_encode($validator->errors(), JSON_UNESCAPED_UNICODE);
@@ -72,14 +66,14 @@ class PostgraduateController
 
     public function editPostgraduate($id, Request $request): string
     {
-        $user = app()->auth::user();
         $postgraduate = Postgraduate::find($id);
+        $user = app()->auth::user();
         
         if (!$postgraduate) {
             app()->route->redirect('/postgraduates');
         }
         
-        if ($user->role_id != 1 && $postgraduate->supervisor_id != $user->supervisor_id) {
+        if (!$postgraduate->canEdit($user)) {
             app()->route->redirect('/postgraduates');
         }
         
@@ -95,15 +89,7 @@ class PostgraduateController
             if ($validator->fails()) {
                 $message = 'Ошибки валидации: ' . json_encode($validator->errors(), JSON_UNESCAPED_UNICODE);
             } else {
-                $postgraduate->name = $request->name;
-                $postgraduate->surname = $request->surname;
-                $postgraduate->patronymic = $request->patronymic;
-                
-                if ($user->role_id == 1 && $request->supervisor_id) {
-                    $postgraduate->supervisor_id = $request->supervisor_id;
-                }
-                
-                if ($postgraduate->save()) {
+                if ($postgraduate->updateFromRequest($request, $user)) {
                     $message = 'Аспирант успешно обновлён!';
                 } else {
                     $message = 'Ошибка при обновлении аспиранта';
@@ -121,14 +107,14 @@ class PostgraduateController
 
     public function deletePostgraduate($id): void
     {
-        $user = app()->auth::user();
         $postgraduate = Postgraduate::find($id);
+        $user = app()->auth::user();
         
         if (!$postgraduate) {
             app()->route->redirect('/postgraduates');
         }
         
-        if ($user->role_id != 1 && $postgraduate->supervisor_id != $user->supervisor_id) {
+        if (!$postgraduate->canEdit($user)) {
             app()->route->redirect('/postgraduates');
         }
         

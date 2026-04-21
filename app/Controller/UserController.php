@@ -9,18 +9,9 @@ use Src\Validator\Validator;
 
 class UserController
 {
-    private function checkAdmin(): void
-    {
-        $user = app()->auth::user();
-        if ($user->role_id != 1) {
-            app()->route->redirect('/dashboard');
-        }
-    }
-
     public function addUser(Request $request): string
     {
-        $this->checkAdmin();
-        
+
         $message = '';
         
         if ($request->method === 'POST') {
@@ -63,8 +54,6 @@ class UserController
 
     public function deleteUser($id): void
     {
-        $this->checkAdmin();
-        
         $user = Staff::find($id);
         
         if (!$user) {
@@ -76,7 +65,6 @@ class UserController
         }
         
         $user->delete();
-        
         app()->route->redirect('/dashboard');
     }
 }

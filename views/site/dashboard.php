@@ -19,7 +19,6 @@
                 <table class="staff-table">
                     <thead>
                         <tr>
-                            <th>ID</th>
                             <th>Логин</th>
                             <th>Имя</th>
                             <th>Фамилия</th>
@@ -30,7 +29,6 @@
                     <tbody>
                         <?php foreach ($users as $userItem): ?>
                         <tr>
-                            <td><?= $userItem->supervisor_id ?></td>
                             <td><?= htmlspecialchars($userItem->login) ?></td>
                             <td><?= htmlspecialchars($userItem->name) ?></td>
                             <td><?= htmlspecialchars($userItem->surname) ?></td>

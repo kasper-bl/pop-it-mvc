@@ -49,13 +49,7 @@ class DissertationController
             ], ['required' => 'Поле :field пусто']);
 
             if (!$validator->fails()) {
-                Dissertation::create([
-                    'postgraduate_id' => $request->postgraduate_id,
-                    'topic' => $request->topic,
-                    'approval_date' => $request->approval_date,
-                    'status_id' => $request->status_id,
-                    'vak_specialty' => $request->vak_specialty
-                ]);
+                Dissertation::createFromRequest($request);
                 $message = 'Диссертация успешно добавлена!';
             } else {
                 $message = 'Ошибки валидации: ' . json_encode($validator->errors(), JSON_UNESCAPED_UNICODE);
@@ -78,7 +72,7 @@ class DissertationController
             app()->route->redirect('/dissertations');
         }
         
-        if ($user->role_id != 1 && $dissertation->postgraduate->supervisor_id != $user->supervisor_id) {
+        if (!$dissertation->canEdit($user)) {
             app()->route->redirect('/dissertations');
         }
         
@@ -94,12 +88,7 @@ class DissertationController
             if ($validator->fails()) {
                 $message = 'Ошибки валидации: ' . json_encode($validator->errors(), JSON_UNESCAPED_UNICODE);
             } else {
-                $dissertation->topic = $request->topic;
-                $dissertation->approval_date = $request->approval_date;
-                $dissertation->status_id = $request->status_id;
-                $dissertation->vak_specialty = $request->vak_specialty;
-                
-                if ($dissertation->save()) {
+                if ($dissertation->updateFromRequest($request)) {
                     $message = 'Диссертация успешно обновлена!';
                 } else {
                     $message = 'Ошибка при обновлении диссертации';
@@ -123,7 +112,7 @@ class DissertationController
             app()->route->redirect('/dissertations');
         }
         
-        if ($user->role_id != 1 && $dissertation->postgraduate->supervisor_id != $user->supervisor_id) {
+        if (!$dissertation->canEdit($user)) {
             app()->route->redirect('/dissertations');
         }
         
