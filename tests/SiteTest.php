@@ -11,7 +11,9 @@ class SiteTest extends TestCase
 {
     protected function setUp(): void
     {
-        $_SERVER['DOCUMENT_ROOT'] = 'C:/xampp/htdocs';
+        $projectRoot = dirname(__DIR__);
+        
+        $_SERVER['DOCUMENT_ROOT'] = $projectRoot;
         $_SERVER['REQUEST_METHOD'] = 'POST';
         
         if (!function_exists('getallheaders')) {
@@ -20,9 +22,23 @@ class SiteTest extends TestCase
             }
         }
         
-        $appConfig = include $_SERVER['DOCUMENT_ROOT'] . '/pop-it-mvc/config/app.php';
-        $dbConfig = include $_SERVER['DOCUMENT_ROOT'] . '/pop-it-mvc/config/db.php';
-        $pathConfig = include $_SERVER['DOCUMENT_ROOT'] . '/pop-it-mvc/config/path.php';
+        $appConfigPath = $projectRoot . '/config/app.php';
+        $dbConfigPath = $projectRoot . '/config/db.php';
+        $pathConfigPath = $projectRoot . '/config/path.php';
+        
+        if (!file_exists($appConfigPath)) {
+            $this->fail("Config file not found: " . $appConfigPath);
+        }
+        if (!file_exists($dbConfigPath)) {
+            $this->fail("Config file not found: " . $dbConfigPath);
+        }
+        if (!file_exists($pathConfigPath)) {
+            $this->fail("Config file not found: " . $pathConfigPath);
+        }
+        
+        $appConfig = include $appConfigPath;
+        $dbConfig = include $dbConfigPath;
+        $pathConfig = include $pathConfigPath;
         
         $GLOBALS['app'] = new Src\Application(new Src\Settings([
             'app' => $appConfig,
@@ -98,10 +114,9 @@ class SiteTest extends TestCase
         
         $request = new Request();
         $request->method = $httpMethod;
-        $request->set('login', $userData['login']);
-        $request->set('password', $userData['password']);
+        $request->set('login', $userData['login'] ?? '');
+        $request->set('password', $userData['password'] ?? '');
         
-        // Используем AuthController вместо Site
         $controller = new AuthController();
         
         ob_start();
